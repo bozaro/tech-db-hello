@@ -6,10 +6,10 @@ MAINTAINER Artem V. Navrotskiy
 RUN apt-get -y update
 
 # Установка golang
-RUN apt-get install -y golang git
+RUN apt-get install -y golang git wget unzip
 
 # Выставляем переменную окружения для сборки проекта
-ENV GOPATH /go
+ENV GOPATH /opt/go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
 # Добавляем зависимости генератора
@@ -21,7 +21,10 @@ RUN go get -v github.com/tylerb/graceful
 RUN go get -v golang.org/x/net/context
 
 # Копируем исходный код в Docker-контейнер
-ADD https://github.com/bozaro/tech-db-hello/raw/master/common/swagger.yml $GOPATH/src/github.com/bozaro/tech-db-hello/common/
+RUN wget https://github.com/bozaro/tech-db-hello/archive/master.zip -O /opt/tech-db-hello-master.zip
+RUN mkdir -p $GOPATH/src/github.com/bozaro/tech-db-hello/
+RUN unzip /opt/tech-db-hello-master.zip -d /opt/ tech-db-hello-master/common/*
+RUN mv /opt/tech-db-hello-master/common $GOPATH/src/github.com/bozaro/tech-db-hello/
 ADD . $GOPATH/src/github.com/bozaro/tech-db-hello/golang/
 
 # Собираем и устанавливаем пакет
