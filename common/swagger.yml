@@ -1,8 +1,8 @@
 swagger: '2.0'
 info:
-  title: Simple To Do List API
+  title: Hello
   description: |
-    Простое API для примера реализации реализации сервиса доступа к БД по схеме из Swagger.
+    Простое API для списка задач.
   version: "0.1.0"
 schemes:
 - http
