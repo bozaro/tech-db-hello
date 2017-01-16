@@ -1,0 +1,128 @@
+swagger: '2.0'
+info:
+  title: Hello
+  description: |
+    Простое API для списка задач.
+  version: "0.1.0"
+schemes:
+- http
+- https
+basePath: /api
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /:
+    get:
+      summary: Получение списка записей
+      operationId: find
+      description: |
+        Получение списка записей.
+
+        Записи выводятся отсортированные по идентификатору.
+      parameters:
+      - name: since
+        in: query
+        type: number
+        format: int64
+        description: |
+          Идентификатор записи, с которой будет возвращаться записи.
+      - name: order
+        in: query
+        type: string
+        description: |
+          Порядок сортировки (asc - по возрастанию, desc - по убыванию).
+        enum:
+        - asc
+        - desc
+        default: asc
+      - name: limit
+        in: query
+        type: number
+        format: int32
+        default: 100
+        minimum: 1
+        maximum: 10000
+        description: Максимальное кол-во возвращаемых записей.
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/item"
+    post:
+      operationId: addMulti
+      description: |
+        Добавление одной или нескольких записей.
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/item"
+      responses:
+        201:
+          description: Created
+          schema:
+            $ref: "#/definitions/item"
+  /{id}:
+    parameters:
+      - type: number
+        format: int64
+        name: id
+        in: path
+        required: true
+    get:
+      operationId: getOne
+      description: Просмотр записи.
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/item"
+        404:
+          description: Запись не найдена.
+    put:
+      operationId: updateOne
+      description: Изменение записи.
+      parameters:
+      - name: body
+        in: body
+        schema:
+          $ref: "#/definitions/item"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/item"
+        404:
+          description: Запись не найдена.
+    delete:
+      operationId: destroyOne
+      description: Удаление записи.
+      responses:
+        204:
+          description: Запись удалена.
+        404:
+          description: Запись не найдена.
+definitions:
+  item:
+    type: object
+    description: |
+      Запись в списке задач.
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: Идентификатор записи.
+        readOnly: true
+      description:
+        type: string
+        description: Описание задачи.
+        minLength: 1
+      completed:
+        type: boolean
+        description: Флаг выполненности.
