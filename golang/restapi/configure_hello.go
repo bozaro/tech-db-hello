@@ -2,19 +2,25 @@ package restapi
 
 import (
 	"crypto/tls"
+	"log"
 	"net/http"
+	"strings"
 
+	recover "github.com/dre1080/recover"
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	errors "github.com/go-openapi/errors"
 	runtime "github.com/go-openapi/runtime"
 	middleware "github.com/go-openapi/runtime/middleware"
 	graceful "github.com/tylerb/graceful"
 
+	"github.com/bozaro/tech-db-hello/golang/modules/assets/ui"
 	"github.com/bozaro/tech-db-hello/golang/restapi/operations"
 )
 
 // This file is safe to edit. Once it exists it will not be overwritten
 
 //go:generate swagger generate server --target .. --name hello --spec ../../common/swagger.yml
+//go:generate go-bindata -pkg ui -o ../modules/assets/ui/ui.go -prefix ../../common/swagger-ui/ ../../common/swagger-ui/...
 
 func configureFlags(api *operations.HelloAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
@@ -76,5 +82,27 @@ func setupMiddlewares(handler http.Handler) http.Handler {
 // The middleware configuration happens before anything, this middleware also applies to serving the swagger.json document.
 // So this is a good place to plug in a panic handling middleware, logging and metrics
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
-	return handler
+	recovery := recover.New(&recover.Options{
+		Log: log.Print,
+	})
+	return recovery(uiMiddleware(handler))
+}
+
+func uiMiddleware(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/swagger.json" {
+			handler.ServeHTTP(w, r)
+			return
+		}
+		// Serving Swagger UI
+		if !strings.HasPrefix(r.URL.Path, "/api/") {
+			http.FileServer(&assetfs.AssetFS{
+				Asset:     ui.Asset,
+				AssetDir:  ui.AssetDir,
+				AssetInfo: ui.AssetInfo,
+			}).ServeHTTP(w, r)
+			return
+		}
+		handler.ServeHTTP(w, r)
+	})
 }
