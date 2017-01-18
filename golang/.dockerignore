@@ -6,3 +6,7 @@ cmd/
 models/
 restapi/*
 !restapi/configure_*.go
+
+# Docker
+.dockerignore
+Dockerfile
