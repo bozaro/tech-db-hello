@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"github.com/bozaro/tech-db-hello/golang/models"
 	"github.com/bozaro/tech-db-hello/golang/modules/assets/assets_db"
 	"github.com/bozaro/tech-db-hello/golang/restapi/operations"
@@ -8,7 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/rubenv/sql-migrate"
 	"log"
-	"fmt"
+	"strings"
 )
 
 type HelloGeneric struct {
@@ -27,6 +28,41 @@ func (self Post) Payload() *models.Item {
 		Description: self.Description,
 		Completed:   self.Completed,
 	}
+}
+
+type DatabaseType struct {
+	Prefix      string
+	Description string
+	Example     string
+	Factory     func(string) HelloHandler
+}
+
+var supportedDatabases = []DatabaseType{
+	{"sqlite3", "SQLite3 database", "sqlite3:tech-db-hello.db", NewHelloSQLite},
+	{"postgres", "PostgreSQL database", "postgres://docker:docker@localhost/docker", NewHelloPgSQL},
+}
+
+func NewHello(database string) HelloHandler {
+	help := "Supported database types:"
+	for _, item := range supportedDatabases {
+		var source string
+		help += "\n- " + item.Prefix + "\t" + item.Description + " (example: " + item.Example + ")"
+		if database == item.Prefix {
+			source = ""
+		} else if strings.HasPrefix(database, item.Prefix+"://") {
+			source = database
+		} else if strings.HasPrefix(database, item.Prefix+":") {
+			source = database[len(item.Prefix)+1:]
+		} else {
+			continue
+		}
+		return item.Factory(source)
+	}
+	panic("Unsupported database type: " + database + "\n" + help)
+	if strings.HasPrefix(database, "sqlite3:") {
+		return NewHelloSQLite(database)
+	}
+	panic("X")
 }
 
 func PostsPayload(value []Post) []*models.Item {

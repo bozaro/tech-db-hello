@@ -1,18 +1,18 @@
 package service
 
 import (
+	"fmt"
 	"github.com/bozaro/tech-db-hello/golang/restapi/operations"
 	"github.com/go-openapi/runtime/middleware"
 	_ "github.com/lib/pq"
-	"fmt"
 )
 
 type HelloPgSQL struct {
 	HelloGeneric
 }
 
-func NewHelloPgSQL(dataSourceName string) HelloPgSQL {
-	return HelloPgSQL{HelloGeneric:NewHelloGeneric("postgres", dataSourceName)}
+func NewHelloPgSQL(dataSourceName string) HelloHandler {
+	return HelloPgSQL{HelloGeneric: NewHelloGeneric("postgres", dataSourceName)}
 }
 
 func (self HelloPgSQL) AddMulti(params operations.AddMultiParams) middleware.Responder {

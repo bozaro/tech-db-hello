@@ -15,6 +15,7 @@ import (
 	"github.com/bozaro/tech-db-hello/golang/modules/assets/assets_ui"
 	"github.com/bozaro/tech-db-hello/golang/modules/service"
 	"github.com/bozaro/tech-db-hello/golang/restapi/operations"
+	"github.com/go-openapi/swag"
 )
 
 // This file is safe to edit. Once it exists it will not be overwritten
@@ -23,8 +24,16 @@ import (
 //go:generate go-bindata -pkg assets_ui -o ../modules/assets/assets_ui/assets_ui.go -prefix ../../common/swagger-ui/ ../../common/swagger-ui/...
 //go:generate go-bindata -pkg assets_db -o ../modules/assets/assets_db/assets_db.go -prefix ../assets/ ../assets/...
 
+type DatabaseFlags struct {
+	Database string `long:"database" description:"database connection parameters" default:"sqlite3:tech-db-hello.db"`
+}
+
+var dbFlags DatabaseFlags
+
 func configureFlags(api *operations.HelloAPI) {
-	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
+	api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{
+		{"database", "database connection parameters", &dbFlags},
+	}
 }
 
 func configureAPI(api *operations.HelloAPI) http.Handler {
@@ -41,7 +50,7 @@ func configureAPI(api *operations.HelloAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	var handler = service.NewHello()
+	var handler service.HelloHandler = service.NewHello(dbFlags.Database)
 	api.AddMultiHandler = operations.AddMultiHandlerFunc(handler.AddMulti)
 	api.DestroyOneHandler = operations.DestroyOneHandlerFunc(handler.DestroyOne)
 	api.FindHandler = operations.FindHandlerFunc(handler.Find)
