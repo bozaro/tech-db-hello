@@ -6,13 +6,12 @@ import (
 	"github.com/bozaro/tech-db-hello/golang/restapi/operations"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/rubenv/sql-migrate"
 	"log"
+	"fmt"
 )
 
-type HelloImpl struct {
+type HelloGeneric struct {
 	db *sqlx.DB
 }
 
@@ -38,27 +37,27 @@ func PostsPayload(value []Post) []*models.Item {
 	return result
 }
 
-func NewHello() HelloHandler {
+func NewHelloGeneric(dialect string, dataSourceName string) HelloGeneric {
 	migrations := &migrate.AssetMigrationSource{
 		Asset:    assets_db.Asset,
 		AssetDir: assets_db.AssetDir,
-		Dir:      "db/sqlite3",
+		Dir:      "db/" + dialect,
 	}
-	db, err := sqlx.Open("sqlite3", "tech-db-hello.db")
+	db, err := sqlx.Open(dialect, dataSourceName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if _, err = migrate.Exec(db.DB, "sqlite3", migrations, migrate.Up); err != nil {
+	if _, err = migrate.Exec(db.DB, dialect, migrations, migrate.Up); err != nil {
 		log.Fatal(err)
 	}
-	return HelloImpl{db: db}
+	return HelloGeneric{db: db}
 }
 
-func (self HelloImpl) AddMulti(params operations.AddMultiParams) middleware.Responder {
+func (self HelloGeneric) AddMulti(params operations.AddMultiParams) middleware.Responder {
 	tx := self.db.MustBegin()
 	defer tx.Rollback()
 
-	stmt, err := tx.Preparex("INSERT INTO tasks (description, completed) VALUES (?, ?)")
+	stmt, err := tx.Preparex("INSERT INTO tasks (description, completed) VALUES ($1, $2)")
 	check(err)
 
 	posts := []Post{}
@@ -77,11 +76,11 @@ func (self HelloImpl) AddMulti(params operations.AddMultiParams) middleware.Resp
 	return operations.NewAddMultiCreated().WithPayload(PostsPayload(posts))
 }
 
-func (self HelloImpl) DestroyOne(params operations.DestroyOneParams) middleware.Responder {
+func (self HelloGeneric) DestroyOne(params operations.DestroyOneParams) middleware.Responder {
 	tx := self.db.MustBegin()
 	defer tx.Rollback()
 
-	result := tx.MustExec("DELETE FROM tasks WHERE id = ?", params.ID)
+	result := tx.MustExec("DELETE FROM tasks WHERE id = $1", params.ID)
 
 	count, err := result.RowsAffected()
 	check(err)
@@ -93,7 +92,7 @@ func (self HelloImpl) DestroyOne(params operations.DestroyOneParams) middleware.
 	return operations.NewDestroyOneNoContent()
 }
 
-func (self HelloImpl) Find(params operations.FindParams) middleware.Responder {
+func (self HelloGeneric) Find(params operations.FindParams) middleware.Responder {
 	tx := self.db.MustBegin()
 	defer tx.Rollback()
 
@@ -102,19 +101,19 @@ func (self HelloImpl) Find(params operations.FindParams) middleware.Responder {
 
 	if params.Since != nil {
 		query += " WHERE id "
-		if *params.Order == "desc" {
-			query += "< ?"
-		} else {
-			query += "> ?"
-		}
 		args = append(args, *params.Since)
+		if *params.Order == "desc" {
+			query += fmt.Sprintf("< $%d", len(args))
+		} else {
+			query += fmt.Sprintf("> $%d", len(args))
+		}
 	}
 	query += " ORDER BY id"
 	if *params.Order == "desc" {
 		query += " DESC"
 	}
-	query += " LIMIT ?"
 	args = append(args, *params.Limit)
+	query += fmt.Sprintf(" LIMIT $%d", len(args))
 
 	posts := []Post{}
 	check(tx.Select(&posts, query, args...))
@@ -123,12 +122,12 @@ func (self HelloImpl) Find(params operations.FindParams) middleware.Responder {
 	return operations.NewFindOK().WithPayload(PostsPayload(posts))
 }
 
-func (self HelloImpl) GetOne(params operations.GetOneParams) middleware.Responder {
+func (self HelloGeneric) GetOne(params operations.GetOneParams) middleware.Responder {
 	tx := self.db.MustBegin()
 	defer tx.Rollback()
 
 	posts := []Post{}
-	check(tx.Select(&posts, "SELECT id, description, completed FROM tasks WHERE id = ?", params.ID))
+	check(tx.Select(&posts, "SELECT id, description, completed FROM tasks WHERE id = $1", params.ID))
 	check(tx.Commit())
 	if len(posts) == 0 {
 		return operations.NewGetOneNotFound()
@@ -136,11 +135,11 @@ func (self HelloImpl) GetOne(params operations.GetOneParams) middleware.Responde
 	return operations.NewGetOneOK().WithPayload(posts[0].Payload())
 }
 
-func (self HelloImpl) UpdateOne(params operations.UpdateOneParams) middleware.Responder {
+func (self HelloGeneric) UpdateOne(params operations.UpdateOneParams) middleware.Responder {
 	tx := self.db.MustBegin()
 	defer tx.Rollback()
 
-	result := tx.MustExec("UPDATE tasks SET description = ?, completed = ? WHERE id = ?", params.Body.Description, params.Body.Completed, params.ID)
+	result := tx.MustExec("UPDATE tasks SET description = $1, completed = $2 WHERE id = $3", params.Body.Description, params.Body.Completed, params.ID)
 
 	count, err := result.RowsAffected()
 	check(err)
