@@ -10,10 +10,10 @@ import (
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	errors "github.com/go-openapi/errors"
 	runtime "github.com/go-openapi/runtime"
-	middleware "github.com/go-openapi/runtime/middleware"
 	graceful "github.com/tylerb/graceful"
 
 	"github.com/bozaro/tech-db-hello/golang/modules/assets/ui"
+	"github.com/bozaro/tech-db-hello/golang/modules/service"
 	"github.com/bozaro/tech-db-hello/golang/restapi/operations"
 )
 
@@ -40,22 +40,12 @@ func configureAPI(api *operations.HelloAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	api.AddMultiHandler = operations.AddMultiHandlerFunc(func(params operations.AddMultiParams) middleware.Responder {
-		return middleware.NotImplemented("operation .AddMulti has not yet been implemented")
-	})
-	api.DestroyOneHandler = operations.DestroyOneHandlerFunc(func(params operations.DestroyOneParams) middleware.Responder {
-		return middleware.NotImplemented("operation .DestroyOne has not yet been implemented")
-	})
-	api.FindHandler = operations.FindHandlerFunc(func(params operations.FindParams) middleware.Responder {
-		return middleware.NotImplemented("operation .Find has not yet been implemented")
-	})
-	api.GetOneHandler = operations.GetOneHandlerFunc(func(params operations.GetOneParams) middleware.Responder {
-		return middleware.NotImplemented("operation .GetOne has not yet been implemented")
-	})
-	api.UpdateOneHandler = operations.UpdateOneHandlerFunc(func(params operations.UpdateOneParams) middleware.Responder {
-		return middleware.NotImplemented("operation .UpdateOne has not yet been implemented")
-	})
-
+	var handler = service.NewHello()
+	api.AddMultiHandler = operations.AddMultiHandlerFunc(handler.AddMulti)
+	api.DestroyOneHandler = operations.DestroyOneHandlerFunc(handler.DestroyOne)
+	api.FindHandler = operations.FindHandlerFunc(handler.Find)
+	api.GetOneHandler = operations.GetOneHandlerFunc(handler.GetOne)
+	api.UpdateOneHandler = operations.UpdateOneHandlerFunc(handler.UpdateOne)
 	api.ServerShutdown = func() {}
 
 	return setupGlobalMiddleware(api.Serve(setupMiddlewares))
