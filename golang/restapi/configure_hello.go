@@ -12,7 +12,7 @@ import (
 	runtime "github.com/go-openapi/runtime"
 	graceful "github.com/tylerb/graceful"
 
-	"github.com/bozaro/tech-db-hello/golang/modules/assets/ui"
+	"github.com/bozaro/tech-db-hello/golang/modules/assets/assets_ui"
 	"github.com/bozaro/tech-db-hello/golang/modules/service"
 	"github.com/bozaro/tech-db-hello/golang/restapi/operations"
 )
@@ -20,7 +20,8 @@ import (
 // This file is safe to edit. Once it exists it will not be overwritten
 
 //go:generate swagger generate server --target .. --name hello --spec ../../common/swagger.yml
-//go:generate go-bindata -pkg ui -o ../modules/assets/ui/ui.go -prefix ../../common/swagger-ui/ ../../common/swagger-ui/...
+//go:generate go-bindata -pkg assets_ui -o ../modules/assets/assets_ui/assets_ui.go -prefix ../../common/swagger-ui/ ../../common/swagger-ui/...
+//go:generate go-bindata -pkg assets_db -o ../modules/assets/assets_db/assets_db.go -prefix ../assets/ ../assets/...
 
 func configureFlags(api *operations.HelloAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
@@ -87,9 +88,9 @@ func uiMiddleware(handler http.Handler) http.Handler {
 		// Serving Swagger UI
 		if !strings.HasPrefix(r.URL.Path, "/api/") {
 			http.FileServer(&assetfs.AssetFS{
-				Asset:     ui.Asset,
-				AssetDir:  ui.AssetDir,
-				AssetInfo: ui.AssetInfo,
+				Asset:     assets_ui.Asset,
+				AssetDir:  assets_ui.AssetDir,
+				AssetInfo: assets_ui.AssetInfo,
 			}).ServeHTTP(w, r)
 			return
 		}

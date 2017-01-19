@@ -1,2 +1,5 @@
 # Idea project files
 .idea/
+
+# Database sqlite3
+*.db
