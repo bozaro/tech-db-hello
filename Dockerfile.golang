@@ -18,7 +18,8 @@ USER postgres
 # then create a database `docker` owned by the ``docker`` role.
 RUN /etc/init.d/postgresql start &&\
     psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
-    createdb -O docker docker
+    createdb -O docker docker &&\
+    /etc/init.d/postgresql stop
 
 # Adjust PostgreSQL configuration so that remote connections to the
 # database are possible.
@@ -41,7 +42,7 @@ USER root
 #
 
 # Установка golang
-RUN apt-get install -y golang git wget unzip
+RUN apt-get install -y golang git
 
 # Выставляем переменную окружения для сборки проекта
 ENV GOPATH /opt/go
@@ -56,18 +57,15 @@ RUN go get -v github.com/tylerb/graceful
 RUN go get -v golang.org/x/net/context
 
 # Копируем исходный код в Docker-контейнер
-RUN wget https://github.com/bozaro/tech-db-hello/archive/master.zip -O /opt/tech-db-hello-master.zip
-RUN mkdir -p $GOPATH/src/github.com/bozaro/tech-db-hello/
-RUN unzip /opt/tech-db-hello-master.zip -d /opt/ tech-db-hello-master/common/*
-RUN mv /opt/tech-db-hello-master/common $GOPATH/src/github.com/bozaro/tech-db-hello/
-ADD . $GOPATH/src/github.com/bozaro/tech-db-hello/golang/
+ADD golang/ $GOPATH/src/github.com/bozaro/tech-db-hello/golang/
+ADD common/ $GOPATH/src/github.com/bozaro/tech-db-hello/common/
 
 # Собираем и устанавливаем пакет
 RUN go generate -x github.com/bozaro/tech-db-hello/golang/...
 RUN go get -v github.com/bozaro/tech-db-hello/golang/...
 RUN go install github.com/bozaro/tech-db-hello/golang/cmd/...
 
-# Публикуем порт
+# Объявлем порт сервера
 EXPOSE 5000
 
 #

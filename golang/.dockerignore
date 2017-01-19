@@ -9,4 +9,3 @@ restapi/*
 
 # Docker
 .dockerignore
-Dockerfile
