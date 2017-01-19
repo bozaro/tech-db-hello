@@ -1,0 +1,69 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.3.RELEASE")
+    }
+}
+
+plugins {
+    id 'org.detoeuf.swagger-codegen' version '1.6.3'
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.3'
+}
+
+repositories {
+    jcenter()
+}
+
+swagger {
+    inputSpec = '../common/swagger.yml'
+
+    output = 'build/swagger'
+    language = 'java'
+
+    additionalProperties = [
+            'invokerPackage'   : 'ru.bozaro.techDb.hello.client.jersey1',
+            'modelPackage'     : 'ru.bozaro.techDb.hello.client.jersey1.model',
+            'apiPackage'       : 'ru.bozaro.techDb.hello.client.jersey1.api',
+            'library'          : 'okhttp-gson',
+            'serializableModel': 'true',
+            'dateLibrary'      : 'java8'
+    ]
+}
+
+sourceSets {
+    swagger {
+        java {
+            srcDir file("${project.buildDir.path}/swagger/src/main/java")
+        }
+    }
+}
+
+ext {
+    jackson_version = '2.4.2'
+    jersey_version = '1.18'
+    jodatime_version = '2.3'
+    junit_version = '4.8.1'
+}
+
+dependencies {
+    swaggerCompile 'org.springframework.boot:spring-boot-starter-web'
+
+    compile "com.sun.jersey:jersey-client:$jersey_version"
+    compile "com.sun.jersey.contribs:jersey-multipart:$jersey_version"
+    compile "com.fasterxml.jackson.core:jackson-core:$jackson_version"
+    compile "com.fasterxml.jackson.core:jackson-annotations:$jackson_version"
+    compile "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:2.1.5"
+    compile "joda-time:joda-time:$jodatime_version"
+
+    testCompile "junit:junit:$junit_version"
+}
