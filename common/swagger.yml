@@ -67,7 +67,9 @@ paths:
         201:
           description: Created
           schema:
-            $ref: "#/definitions/item"
+            type: array
+            items:
+              $ref: "#/definitions/item"
   /{id}:
     parameters:
       - type: number

@@ -54,8 +54,27 @@ func NewHello() HelloHandler {
 	return HelloImpl{db: db}
 }
 
-func (HelloImpl) AddMulti(params operations.AddMultiParams) middleware.Responder {
-	return middleware.NotImplemented("operation .AddMulti has not yet been implemented")
+func (self HelloImpl) AddMulti(params operations.AddMultiParams) middleware.Responder {
+	tx := self.db.MustBegin()
+	defer tx.Rollback()
+
+	stmt, err := tx.Preparex("INSERT INTO tasks (description, completed) VALUES (?, ?)")
+	check(err)
+
+	posts := []Post{}
+	for _, item := range params.Body {
+		result := stmt.MustExec(item.Description, item.Completed)
+		id, err := result.LastInsertId()
+		check(err)
+		posts = append(posts, Post{
+			ID:         id,
+			Description:item.Description,
+			Completed:  item.Completed,
+		})
+	}
+	check(tx.Commit())
+
+	return operations.NewAddMultiCreated().WithPayload(PostsPayload(posts))
 }
 
 func (self HelloImpl) DestroyOne(params operations.DestroyOneParams) middleware.Responder {
