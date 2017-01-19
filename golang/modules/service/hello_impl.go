@@ -67,9 +67,9 @@ func (self HelloImpl) AddMulti(params operations.AddMultiParams) middleware.Resp
 		id, err := result.LastInsertId()
 		check(err)
 		posts = append(posts, Post{
-			ID:         id,
-			Description:item.Description,
-			Completed:  item.Completed,
+			ID:          id,
+			Description: item.Description,
+			Completed:   item.Completed,
 		})
 	}
 	check(tx.Commit())
@@ -101,7 +101,12 @@ func (self HelloImpl) Find(params operations.FindParams) middleware.Responder {
 	args := []interface{}{}
 
 	if params.Since != nil {
-		query += " WHERE id > ?"
+		query += " WHERE id "
+		if *params.Order == "desc" {
+			query += "< ?"
+		} else {
+			query += "> ?"
+		}
 		args = append(args, *params.Since)
 	}
 	query += " ORDER BY id"
@@ -112,7 +117,7 @@ func (self HelloImpl) Find(params operations.FindParams) middleware.Responder {
 	args = append(args, *params.Limit)
 
 	posts := []Post{}
-	check(tx.Select(&posts, query, args))
+	check(tx.Select(&posts, query, args...))
 	check(tx.Commit())
 
 	return operations.NewFindOK().WithPayload(PostsPayload(posts))
@@ -144,7 +149,10 @@ func (self HelloImpl) UpdateOne(params operations.UpdateOneParams) middleware.Re
 	if count == 0 {
 		return operations.NewUpdateOneNotFound()
 	}
-	return operations.NewUpdateOneOK()
+
+	post := *params.Body
+	post.ID = params.ID
+	return operations.NewUpdateOneOK().WithPayload(&post)
 }
 
 func check(err error) {
