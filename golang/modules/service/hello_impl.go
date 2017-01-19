@@ -30,6 +30,14 @@ func (self Post) Payload() *models.Item {
 	}
 }
 
+func PostsPayload(value []Post) []*models.Item {
+	result := make([]*models.Item, len(value))
+	for idx, item := range value {
+		result[idx] = item.Payload()
+	}
+	return result
+}
+
 func NewHello() HelloHandler {
 	migrations := &migrate.AssetMigrationSource{
 		Asset:    assets_db.Asset,
@@ -66,8 +74,29 @@ func (self HelloImpl) DestroyOne(params operations.DestroyOneParams) middleware.
 	return operations.NewDestroyOneNoContent()
 }
 
-func (HelloImpl) Find(params operations.FindParams) middleware.Responder {
-	return middleware.NotImplemented("operation .AddMulti has not yet been implemented")
+func (self HelloImpl) Find(params operations.FindParams) middleware.Responder {
+	tx := self.db.MustBegin()
+	defer tx.Rollback()
+
+	query := "SELECT id, description, completed FROM tasks"
+	args := []interface{}{}
+
+	if params.Since != nil {
+		query += " WHERE id > ?"
+		args = append(args, *params.Since)
+	}
+	query += " ORDER BY id"
+	if *params.Order == "desc" {
+		query += " DESC"
+	}
+	query += " LIMIT ?"
+	args = append(args, *params.Limit)
+
+	posts := []Post{}
+	check(tx.Select(&posts, query, args))
+	check(tx.Commit())
+
+	return operations.NewFindOK().WithPayload(PostsPayload(posts))
 }
 
 func (self HelloImpl) GetOne(params operations.GetOneParams) middleware.Responder {
