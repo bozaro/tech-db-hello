@@ -40,11 +40,17 @@ swagger {
 }
 
 sourceSets {
-    swagger {
+    main {
         java {
             srcDir file("${project.buildDir.path}/swagger/src/main/java")
         }
+//        compileClasspath += configurations.swaggerCompile
+
     }
+}
+
+compileJava {
+    dependsOn "swagger"
 }
 
 ext {
@@ -56,6 +62,11 @@ ext {
 
 dependencies {
     swaggerCompile 'org.springframework.boot:spring-boot-starter-web'
+
+    compile 'io.swagger:swagger-annotations:1.5.8'
+    compile 'com.squareup.okhttp:okhttp:2.7.5'
+    compile 'com.squareup.okhttp:logging-interceptor:2.7.5'
+    compile 'com.google.code.gson:gson:2.6.2'
 
     compile "com.sun.jersey:jersey-client:$jersey_version"
     compile "com.sun.jersey.contribs:jersey-multipart:$jersey_version"
