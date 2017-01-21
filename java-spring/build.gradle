@@ -23,6 +23,10 @@ repositories {
     jcenter()
 }
 
+springBoot {
+    mainClass = 'ru.bozaro.techDb.HelloApplication'
+}
+
 swagger {
     inputSpec = '../common/swagger.yml'
 
@@ -61,9 +65,8 @@ dependencies {
 
     compile 'io.springfox:springfox-swagger-ui:2.6.1'
     compile 'io.springfox:springfox-swagger2:2.6.1'
-    compile 'io.springfox:springfox-spring-web:2.6.1'
-
     compile 'io.swagger:swagger-annotations:1.5.8'
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.6'
 
     testCompile "junit:junit:$junit_version"
 }

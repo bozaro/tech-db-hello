@@ -21,6 +21,7 @@ paths:
         Получение списка записей.
 
         Записи выводятся отсортированные по идентификатору.
+      consumes: []
       parameters:
       - name: since
         in: query
@@ -75,6 +76,7 @@ paths:
     get:
       operationId: getOne
       description: Просмотр записи.
+      consumes: []
       responses:
         200:
           description: OK
