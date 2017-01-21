@@ -7,13 +7,13 @@ info:
 schemes:
 - http
 - https
-basePath: /api
+basePath: /
 consumes:
 - application/json
 produces:
 - application/json
 paths:
-  /:
+  /api:
     get:
       summary: Получение списка записей
       operationId: find
@@ -28,15 +28,10 @@ paths:
         format: int64
         description: |
           Идентификатор записи, с которой будет возвращаться записи.
-      - name: order
+      - name: desc
         in: query
-        type: string
+        type: boolean
         description: |
-          Порядок сортировки (asc - по возрастанию, desc - по убыванию).
-        enum:
-        - asc
-        - desc
-        default: asc
       - name: limit
         in: query
         type: number
@@ -70,7 +65,7 @@ paths:
             type: array
             items:
               $ref: "#/definitions/item"
-  /{id}:
+  /api/{id}:
     parameters:
       - type: number
         format: int64
