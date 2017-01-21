@@ -138,14 +138,14 @@ func (self HelloGeneric) Find(params operations.FindParams) middleware.Responder
 	if params.Since != nil {
 		query += " WHERE id "
 		args = append(args, *params.Since)
-		if *params.Order == "desc" {
+		if *params.Desc {
 			query += fmt.Sprintf("< $%d", len(args))
 		} else {
 			query += fmt.Sprintf("> $%d", len(args))
 		}
 	}
 	query += " ORDER BY id"
-	if *params.Order == "desc" {
+	if *params.Desc {
 		query += " DESC"
 	}
 	args = append(args, *params.Limit)
