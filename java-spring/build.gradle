@@ -24,7 +24,7 @@ repositories {
 }
 
 springBoot {
-    mainClass = 'ru.bozaro.techDb.HelloApplication'
+    mainClass = 'ru.bozaro.techDb.service.HelloApplication'
 }
 
 swagger {
@@ -72,7 +72,6 @@ dependencies {
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     runtime 'com.h2database:h2'
-    runtime 'mysql:mysql-connector-java'
     runtime 'org.postgresql:postgresql'
 
     testCompile "junit:junit:$junit_version"
