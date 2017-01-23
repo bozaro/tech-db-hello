@@ -7,13 +7,13 @@ info:
 schemes:
 - http
 - https
-basePath: /api
+basePath: /
 consumes:
 - application/json
 produces:
 - application/json
 paths:
-  /:
+  /api:
     get:
       summary: Получение списка записей
       operationId: find
@@ -21,6 +21,7 @@ paths:
         Получение списка записей.
 
         Записи выводятся отсортированные по идентификатору.
+      consumes: []
       parameters:
       - name: since
         in: query
@@ -28,15 +29,10 @@ paths:
         format: int64
         description: |
           Идентификатор записи, с которой будет возвращаться записи.
-      - name: order
+      - name: desc
         in: query
-        type: string
+        type: boolean
         description: |
-          Порядок сортировки (asc - по возрастанию, desc - по убыванию).
-        enum:
-        - asc
-        - desc
-        default: asc
       - name: limit
         in: query
         type: number
@@ -70,7 +66,7 @@ paths:
             type: array
             items:
               $ref: "#/definitions/item"
-  /{id}:
+  /api/{id}:
     parameters:
       - type: number
         format: int64
@@ -80,6 +76,7 @@ paths:
     get:
       operationId: getOne
       description: Просмотр записи.
+      consumes: []
       responses:
         200:
           description: OK
@@ -105,6 +102,7 @@ paths:
     delete:
       operationId: destroyOne
       description: Удаление записи.
+      consumes: []
       responses:
         204:
           description: Запись удалена.
@@ -120,7 +118,7 @@ definitions:
         type: integer
         format: int64
         description: Идентификатор записи.
-        readOnly: true
+        #readOnly: true
       description:
         type: string
         description: Описание задачи.

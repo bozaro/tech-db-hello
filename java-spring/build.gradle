@@ -1,0 +1,78 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.3.RELEASE")
+    }
+}
+
+plugins {
+    id 'org.detoeuf.swagger-codegen' version '1.6.3'
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.3'
+}
+
+repositories {
+    jcenter()
+}
+
+springBoot {
+    mainClass = 'ru.bozaro.techDb.service.HelloApplication'
+}
+
+swagger {
+    inputSpec = '../common/swagger.yml'
+
+    output = 'build/swagger'
+    language = 'spring'
+
+    additionalProperties = [
+            'modelPackage'     : 'ru.bozaro.techDb.hello.model',
+            'apiPackage'       : 'ru.bozaro.techDb.hello.api',
+            'serializableModel': 'true',
+            'dateLibrary'      : 'java8',
+    ]
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir file("${project.buildDir.path}/swagger/src/main/java")
+        }
+    }
+}
+
+compileJava {
+    dependsOn "swagger"
+}
+
+ext {
+    jackson_version = '2.4.2'
+    jersey_version = '1.18'
+    jodatime_version = '2.3'
+    junit_version = '4.8.1'
+}
+
+dependencies {
+    swaggerCompile 'org.springframework.boot:spring-boot-starter-web'
+
+    compile 'org.springframework.boot:spring-boot-starter-jdbc'
+    compile 'org.springframework.boot:spring-boot-starter-web-services'
+    compile 'io.springfox:springfox-swagger-ui:2.6.1'
+    compile 'io.springfox:springfox-swagger2:2.6.1'
+    compile 'io.swagger:swagger-annotations:1.5.8'
+    compile 'org.flywaydb:flyway-core'
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    runtime 'com.h2database:h2'
+    runtime 'org.postgresql:postgresql'
+
+    testCompile "junit:junit:$junit_version"
+}
