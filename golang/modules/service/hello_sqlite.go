@@ -5,5 +5,7 @@ import (
 )
 
 func NewHelloSQLite(dataSourceName string) HelloHandler {
-	return NewHelloGeneric("sqlite3", dataSourceName)
+	generic := NewHelloGeneric("sqlite3", dataSourceName)
+	generic.db.SetMaxOpenConns(1)
+	return generic
 }
