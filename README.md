@@ -23,20 +23,20 @@ Docker контейнра организованы по следующему п�
 ## Как собрать и запустить контейнер
 Для сборки контейнера монжо выполнить команду вида:
 ```bash
-docker build -t tech-db-hello -f Dockerile.java-spring https://github.com/bozaro/tech-db-hello.git
+docker build -t tech-db-hello -f Dockerfile.java-spring https://github.com/bozaro/tech-db-hello.git
 ```
 Или команды:
 ```bash
 git clone https://github.com/bozaro/tech-db-hello.git tech-db-hello
 cd tech-db-hello/
-docker build -t tech-db-hello -f Dockerile.java-spring .
+docker build -t tech-db-hello -f Dockerfile.java-spring .
 ```
 
 После этого будет создан Docker-образ с именем `tech-db-hello` (опция `-t`).
 
 Запустить ранее собранный контейнер можно командой вида:
 ```bash
-docker run -p 5000:5000 --name hello -t tech-db-hello --name hello
+docker run -p 5000:5000 --name hello tech-db-hello
 ```
 После этого можно получить доступ к запущенному в контейнере приложению по URL: http://localhost:5000/
 
