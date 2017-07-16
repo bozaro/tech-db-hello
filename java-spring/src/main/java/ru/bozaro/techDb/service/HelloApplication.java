@@ -5,8 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication(scanBasePackages = {
-        "io.swagger.configuration",
-        "ru.bozaro.techDb.service"
+        "ru.bozaro.techDb.hello.api",
 })
 @EnableSwagger2
 public class HelloApplication {

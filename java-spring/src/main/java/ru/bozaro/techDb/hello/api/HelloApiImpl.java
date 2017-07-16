@@ -1,4 +1,4 @@
-package ru.bozaro.techDb.service;
+package ru.bozaro.techDb.hello.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.bozaro.techDb.hello.api.ApiApi;
 import ru.bozaro.techDb.hello.model.Item;
 
 import java.math.BigDecimal;

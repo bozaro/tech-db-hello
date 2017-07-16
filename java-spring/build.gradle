@@ -16,7 +16,7 @@ apply plugin: 'java'
 apply plugin: 'org.springframework.boot'
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.3'
+    gradleVersion = '4.0.1'
 }
 
 repositories {
@@ -30,7 +30,7 @@ springBoot {
 swagger {
     inputSpec = '../common/swagger.yml'
 
-    outputDir = 'build/swagger'
+    outputDir = "${project.buildDir}/swagger"
     lang = 'spring'
 
     additionalProperties = [
@@ -39,12 +39,13 @@ swagger {
             'serializableModel': 'true',
             'dateLibrary'      : 'java8',
     ]
+    ignoreFileOverride = "${projectDir}/.swagger-codegen-ignore"
 }
 
 sourceSets {
     main {
         java {
-            srcDir file("${project.buildDir.path}/swagger/src/main/java")
+            srcDir file("${project.buildDir}/swagger/src/main/java")
         }
     }
 }
