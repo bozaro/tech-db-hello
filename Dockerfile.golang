@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:17.04
 
 MAINTAINER Artem V. Navrotskiy
 
@@ -8,7 +8,7 @@ RUN apt-get -y update
 #
 # Установка postgresql
 #
-ENV PGVER 9.5
+ENV PGVER 9.6
 RUN apt-get install -y postgresql-$PGVER
 
 # Run the rest of the commands as the ``postgres`` user created by the ``postgres-$PGVER`` package when it was ``apt-get installed``
@@ -42,11 +42,12 @@ USER root
 #
 
 # Установка golang
-RUN apt-get install -y golang git
+RUN apt install -y golang-1.8 git
 
 # Выставляем переменную окружения для сборки проекта
+ENV GOROOT /usr/lib/go-1.8
 ENV GOPATH /opt/go
-ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+ENV PATH $GOROOT/bin:$GOPATH/bin:/usr/local/go/bin:$PATH
 
 # Добавляем зависимости генератора
 RUN go get -v github.com/go-swagger/go-swagger/cmd/swagger

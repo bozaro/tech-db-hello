@@ -135,17 +135,18 @@ func (self HelloGeneric) Find(params operations.FindParams) middleware.Responder
 	query := "SELECT id, description, completed FROM tasks"
 	args := []interface{}{}
 
+	desc := params.Desc != nil && *params.Desc
 	if params.Since != nil {
 		query += " WHERE id "
 		args = append(args, *params.Since)
-		if *params.Desc {
+		if desc {
 			query += fmt.Sprintf("< $%d", len(args))
 		} else {
 			query += fmt.Sprintf("> $%d", len(args))
 		}
 	}
 	query += " ORDER BY id"
-	if *params.Desc {
+	if desc {
 		query += " DESC"
 	}
 	args = append(args, *params.Limit)
