@@ -49,22 +49,18 @@ ENV GOROOT /usr/lib/go-1.8
 ENV GOPATH /opt/go
 ENV PATH $GOROOT/bin:$GOPATH/bin:/usr/local/go/bin:$PATH
 
-# Добавляем зависимости генератора
-RUN go get -v github.com/go-swagger/go-swagger/cmd/swagger
-RUN go get -v github.com/jteeuwen/go-bindata/...
-RUN go get -v github.com/go-openapi/runtime
-RUN go get -v github.com/jessevdk/go-flags
-RUN go get -v github.com/tylerb/graceful
-RUN go get -v golang.org/x/net/context
-
 # Копируем исходный код в Docker-контейнер
+WORKDIR $GOPATH/src/github.com/bozaro/tech-db-hello/golang
 ADD golang/ $GOPATH/src/github.com/bozaro/tech-db-hello/golang/
 ADD common/ $GOPATH/src/github.com/bozaro/tech-db-hello/common/
 
+# Собираем генераторы
+RUN go install ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+RUN go install ./vendor/github.com/jteeuwen/go-bindata/go-bindata
+
 # Собираем и устанавливаем пакет
-RUN go generate -x github.com/bozaro/tech-db-hello/golang/...
-RUN go get -v github.com/bozaro/tech-db-hello/golang/...
-RUN go install github.com/bozaro/tech-db-hello/golang/cmd/...
+RUN go generate -x ./restapi
+RUN go install ./cmd/hello-server
 
 # Объявлем порт сервера
 EXPOSE 5000
