@@ -1,0 +1,103 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.7.RELEASE'
+        kotlin_version = '1.1.4'
+    }
+
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url "http://repo.spring.io/snapshot" }
+        maven { url "http://repo.spring.io/milestone" }
+    }
+
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.3.RELEASE"
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:$kotlin_version")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+plugins {
+    id 'org.detoeuf.swagger-codegen' version '1.6.3'
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'kotlin'
+apply plugin: "kotlin-spring"
+apply plugin: 'org.springframework.boot'
+
+repositories {
+    mavenCentral()
+
+    maven { url "http://repo.spring.io/snapshot" }
+    maven { url "http://repo.spring.io/milestone" }
+
+}
+
+swagger {
+    inputSpec = '../common/swagger.yml'
+
+    output = 'build/swagger'
+    language = 'spring'
+
+    additionalProperties = [
+            'modelPackage'     : 'ru.lionzxy.techDb.hello.model',
+            'apiPackage'       : 'ru.lionzxy.techDb.hello.api',
+            'serializableModel': 'true',
+            'dateLibrary'      : 'java8',
+    ]
+}
+
+compileJava {
+    dependsOn "swagger"
+}
+
+compileKotlin {
+    dependsOn "swagger"
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir file("${project.buildDir.path}/swagger/src/main/java")
+        }
+    }
+}
+
+springBoot {
+    mainClass = 'ru.lionzxy.techDb.service.Application'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.4.1'
+}
+
+dependencies {
+    swaggerCompile 'org.springframework.boot:spring-boot-starter-web'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    compile "org.flywaydb:flyway-core"
+    compile 'io.springfox:springfox-swagger-ui:2.7.0'
+    compile 'io.springfox:springfox-swagger2:2.7.0'
+    compile 'org.springframework.boot:spring-boot-starter-web-services'
+    compile 'io.swagger:swagger-annotations:1.5.8'
+    compile 'joda-time:joda-time:2.9.9'
+    compile("org.springframework.boot:spring-boot-starter-jdbc") {
+        exclude group: 'org.apache.tomcat', module: 'tomcat-jdbc'
+    }
+
+    compile("com.zaxxer:HikariCP:2.7.2")
+    compile("org.postgresql:postgresql")
+    compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.8.10")
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}

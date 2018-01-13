@@ -1,4 +1,4 @@
-def langs = ['golang', 'java-spring']
+def langs = ['golang', 'java-spring', 'kotlin-spring']
 def stepsForParallel = [:]
 for (lang in langs) {
     stepsForParallel["$lang"] = {
