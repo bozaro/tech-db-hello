@@ -14,26 +14,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 
 @SpringBootApplication
 @EnableSwagger2
-open class Application : SpringBootServletInitializer() {
+class Application
 
-    override fun configure(application: SpringApplicationBuilder): SpringApplicationBuilder =
-            application.sources(Application::class.java)
-
-
-    @Bean
-    open fun mapperForKotlinTypes(): MappingJackson2HttpMessageConverter {
-        return MappingJackson2HttpMessageConverter().apply { objectMapper = jacksonMapper }
-    }
-
-    companion object {
-        val jacksonMapper = ObjectMapper().registerKotlinModule()
-                .setSerializationInclusion(JsonInclude.Include.NON_ABSENT)
-                .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-
-        @Throws(Exception::class)
-        @JvmStatic
-        fun main(args: Array<String>) {
-            SpringApplication.run(Application::class.java, *args)
-        }
-    }
+fun main(args: Array<String>) {
+    SpringApplication.run(Application::class.java, *args)
 }
+

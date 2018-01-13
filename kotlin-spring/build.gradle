@@ -1,7 +1,7 @@
 buildscript {
     ext {
         springBootVersion = '1.5.7.RELEASE'
-        kotlin_version = '1.1.4'
+        kotlin_version = '1.2.10'
     }
 
     repositories {
@@ -47,7 +47,7 @@ swagger {
             'modelPackage'     : 'ru.lionzxy.techDb.hello.model',
             'apiPackage'       : 'ru.lionzxy.techDb.hello.api',
             'serializableModel': 'true',
-            'dateLibrary'      : 'java8',
+            'dateLibrary'      : 'kotlin',
     ]
 }
 
@@ -68,7 +68,7 @@ sourceSets {
 }
 
 springBoot {
-    mainClass = 'ru.lionzxy.techDb.service.Application'
+    mainClass = 'ru.lionzxy.techDb.service.ApplicationKt'
 }
 
 task wrapper(type: Wrapper) {

@@ -54,8 +54,6 @@ ADD common/ $WORK/common/
 
 # Собираем и устанавливаем пакет
 WORKDIR $WORK/kotlin-spring
-# Ускоряем последующие билды, загружая враппер отдельным таском
-RUN ./gradlew wrapper
 RUN ./gradlew assemble
 
 # Объявлем порт сервера
