@@ -42,7 +42,7 @@ USER root
 #
 
 # Установка JDK
-RUN apt-get install -y openjdk-8-jdk-headless
+RUN apt-get install -y openjdk-9-jdk-headless
 
 # Копируем исходный код в Docker-контейнер
 ENV WORK /opt/tech-db-hello

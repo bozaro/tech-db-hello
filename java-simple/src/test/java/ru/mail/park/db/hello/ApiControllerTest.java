@@ -1,31 +1,28 @@
 package ru.mail.park.db.hello;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-@RunWith(SpringRunner.class)
+import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc(print = MockMvcPrint.NONE)
 @Transactional
-public class ApiControllerTest {
+class ApiControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -48,7 +45,7 @@ public class ApiControllerTest {
 	}
 
 	@Test
-	public void testList() throws Exception {
+	void testList() throws Exception {
 		long id = postTask();
 
 		mockMvc.perform(get("/api"))
@@ -60,7 +57,7 @@ public class ApiControllerTest {
 	}
 
 	@Test
-	public void testGet() throws Exception {
+	void testGet() throws Exception {
 
 		long id = postTask();
 
@@ -72,13 +69,13 @@ public class ApiControllerTest {
 	}
 
 	@Test
-	public void testGetNotFound() throws Exception {
+	void testGetNotFound() throws Exception {
 		mockMvc.perform(get("/api/42"))
 				.andExpect(status().isNotFound());
 	}
 
 	@Test
-	public void testDelete() throws Exception {
+	void testDelete() throws Exception {
 
 		long id = postTask();
 
@@ -87,13 +84,13 @@ public class ApiControllerTest {
 	}
 
 	@Test
-	public void testDeleteNotFound() throws Exception {
+	void testDeleteNotFound() throws Exception {
 		mockMvc.perform(delete("/api/42"))
 				.andExpect(status().isNotFound());
 	}
 
 	@Test
-	public void testUpdate() throws Exception {
+	void testUpdate() throws Exception {
 		long id = postTask();
 		mockMvc.perform(put("/api/" + id)
 				.contentType(MediaType.APPLICATION_JSON)
@@ -105,7 +102,7 @@ public class ApiControllerTest {
 	}
 
 	@Test
-	public void testUpdateNotFound() throws Exception {
+	void testUpdateNotFound() throws Exception {
 		mockMvc.perform(put("/api/42")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(SAMPLE_TASK))
