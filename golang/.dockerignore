@@ -10,3 +10,7 @@ restapi/*
 
 # Docker
 .dockerignore
+
+# Vendoring
+/vendor/
+go.sum

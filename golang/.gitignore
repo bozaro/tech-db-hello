@@ -9,5 +9,6 @@
 /hello-server
 /hello-server.exe
 
-# Godep vendoring
-!vendor/**
+# Go mod vendoring
+/vendor/
+go.sum
