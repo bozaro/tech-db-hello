@@ -6,23 +6,17 @@ import (
 	"net/http"
 	"strings"
 
-	recover "github.com/dre1080/recover"
-	assetfs "github.com/elazarl/go-bindata-assetfs"
-	errors "github.com/go-openapi/errors"
-	runtime "github.com/go-openapi/runtime"
-	graceful "github.com/tylerb/graceful"
-
 	"github.com/bozaro/tech-db-hello/golang/modules/assets/assets_ui"
 	"github.com/bozaro/tech-db-hello/golang/modules/service"
 	"github.com/bozaro/tech-db-hello/golang/restapi/operations"
+	"github.com/dre1080/recover"
+	assetfs "github.com/elazarl/go-bindata-assetfs"
+	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 )
 
 // This file is safe to edit. Once it exists it will not be overwritten
-
-//go:generate swagger generate server --target .. --name hello --spec ../../common/swagger.yml
-//go:generate go-bindata -pkg assets_ui -o ../modules/assets/assets_ui/assets_ui.go -prefix ../../common/swagger-ui/ ../../common/swagger-ui/...
-//go:generate go-bindata -pkg assets_db -o ../modules/assets/assets_db/assets_db.go -prefix ../assets/ ../assets/...
 
 type DatabaseFlags struct {
 	Database string `long:"database" description:"database connection parameters" default:"sqlite3:tech-db-hello.db"`
@@ -70,7 +64,7 @@ func configureTLS(tlsConfig *tls.Config) {
 // If you need to modify a config, store server instance to stop it individually later, this is the place.
 // This function can be called multiple times, depending on the number of serving schemes.
 // scheme value will be set accordingly: "http", "https" or "unix"
-func configureServer(s *graceful.Server, scheme, addr string) {
+func configureServer(s *http.Server, scheme, addr string) {
 }
 
 // The middleware configuration is for the handler executors. These do not apply to the swagger.json document.
@@ -90,8 +84,10 @@ func setupGlobalMiddleware(handler http.Handler) http.Handler {
 
 func uiMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/swagger.json" {
-			handler.ServeHTTP(w, r)
+		if r.URL.Path == "/swagger.json" || r.URL.Path == "/swagger.yml" {
+			w.Header().Add("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(SwaggerJSON)
 			return
 		}
 		// Serving Swagger UI
@@ -100,9 +96,8 @@ func uiMiddleware(handler http.Handler) http.Handler {
 		}
 		if r.URL.Path != "/api" && !strings.HasPrefix(r.URL.Path, "/api/") {
 			http.FileServer(&assetfs.AssetFS{
-				Asset:     assets_ui.Asset,
-				AssetDir:  assets_ui.AssetDir,
-				AssetInfo: assets_ui.AssetInfo,
+				Asset:    assets_ui.Asset,
+				AssetDir: assets_ui.AssetDir,
 			}).ServeHTTP(w, r)
 			return
 		}
